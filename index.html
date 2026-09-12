@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sons of Ithica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f0e7d3;--card:#faf4e4;--line:#d9cba6;--line2:#c4b385;--ink:#2e2a1e;--dim:#8d7f5c;--blue:#2a4a73;--gold:#a4762a;--red:#a03d2a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:'Cormorant Garamond',Georgia,serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:44px 18px 60px}
+.key{width:min(560px,94vw);height:14px;background-image:repeating-linear-gradient(90deg,var(--blue) 0 3px,transparent 3px 6px,var(--blue) 6px 9px,transparent 9px 26px);opacity:.7}
+.key.flip{transform:scaleY(-1)}
+header{text-align:center;margin:20px 0 4px}
+h1{font-size:36px;font-weight:700;letter-spacing:5px;font-variant:small-caps;color:var(--blue)}
+.sub{color:var(--dim);font-size:15px;font-style:italic;margin-top:8px}
+#scene{width:min(560px,94vw);margin:22px 0 16px;background:var(--card);border:1px solid var(--line);padding:30px 34px 26px;box-shadow:0 1px 0 rgba(46,42,30,.06),0 18px 36px -22px rgba(46,42,30,.3);position:relative}
+#scene::before,#scene::after{content:"";position:absolute;inset:6px;border:1px solid var(--line2);pointer-events:none}
+.chline{font-family:'Karla',sans-serif;font-size:10px;font-weight:700;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+#story{font-size:19px;line-height:1.8;min-height:110px;font-weight:500}
+#story::first-letter{font-size:1.35em;color:var(--blue);font-weight:700}
+#choices{display:flex;flex-direction:column;gap:2px;margin-top:20px;border-top:1px solid var(--line);padding-top:14px}
+button{cursor:pointer;background:none;border:none;color:var(--ink);font-family:inherit;font-size:17.5px;font-weight:600;padding:9px 6px;text-align:left;transition:color .15s,padding-left .15s;display:flex;gap:12px;align-items:baseline}
+button .k{font-family:'Karla',sans-serif;font-size:10.5px;font-weight:700;color:var(--dim);letter-spacing:1px}
+button:hover{color:var(--blue);padding-left:12px}
+button:hover .k{color:var(--blue)}
+#hud{display:flex;justify-content:center;gap:30px;font-family:'Karla',sans-serif;font-size:11px;font-weight:700;color:var(--dim);letter-spacing:1.8px;text-transform:uppercase}
+#hud b{color:var(--gold);font-size:15px;margin-left:6px;font-variant-numeric:tabular-nums}
+footer{margin-top:30px;color:var(--dim);font-size:14px;font-style:italic}
+</style>
+</head>
+<body>
+<div class="key"></div>
+<header>
+  <h1>Sons of Ithica</h1>
+  <div class="sub">the suitors have taken the hall &middot; a text odyssey</div>
+</header>
+<div id="scene">
+  <div class="chline" id="chline">Chapter I</div>
+  <div id="story"></div>
+  <div id="choices"></div>
+</div>
+<div id="hud"><span>Glory<b id="glory">0</b></span><span>Sons<b id="sons">3</b></span><span>Chapter<b id="ch">1</b></span></div>
+<footer>sung around the fire, corrected by nobody</footer>
+<div class="key flip"></div>
+<script>
+const $=id=>document.getElementById(id);
+let glory=0,sons=3,ch=1;
+const NUM=['I','II','III','IV'];
+const BEATS=[
+{t:"The suitors feast in Odysseus's hall. Three sons of Ithica stand at the door. Antinous the Loud is gnawing a lamb shank that was never his.",c:[["Kick the door in","door"],["Sneak through the kitchen","kitchen"],["Demand trial by poetry","poetry"]]},
+{t:"Inside. Oil lamps. Spilled wine. Twenty suitors who have never held a spear without posing first.",c:[["Challenge the strongest","fight"],["Poison the second amphora (classical)","poison"],["Deliver a speech about the father","speech"]]},
+{t:"The hall turns. Eurymachus stands on the table. 'Sons of a lost man,' he bellows, dropping a drumstick.",c:[["Quote your father's laws","law"],["Flip the table","flip"],["Challenge him to a lyre duel","lyre"]]},
+{t:"Dawn breaks over Ithica. The sea does what the sea does. What remains is what you made of the night.",c:[]}
+];
+function show(i){
+  const b=BEATS[i];$('story').textContent=b.t;$('ch').textContent=i+1;$('chline').textContent='Chapter '+NUM[i];
+  const box=$('choices');box.innerHTML='';
+  if(!b.c.length){end();return;}
+  b.c.forEach(([label,key],ci)=>{
+    const btn=document.createElement('button');
+    btn.innerHTML='<span class="k">'+'abc'[ci]+'.</span><span>'+label+'</span>';
+    btn.onclick=()=>resolve(key,i);box.appendChild(btn);
+  });
+}
+function resolve(key,i){
+  const R={
+  door:[1,0,"The door explodes inward. Classical. Glory rises."],
+  kitchen:[0,0,"Through fish smoke and coriander. Nobody suspects a son in the kitchen."],
+  poetry:[2,0,"Your hexameters devastate two minor suitors into early retirement."],
+  fight:[2,-1,"You win, but little Corax takes a stool to the ribs. One son down."],
+  poison:[1,0,"The amphora does its work. Classical means historically accurate here."],
+  speech:[3,0,"You speak of the father. Even the suitors' wine pauses."],
+  law:[1,0,"The laws are cited. Eurymachus pretends he cannot hear law."],
+  flip:[2,-1,"The table flips. So does Eurymachus. A son is concussed by roast boar."],
+  lyre:[3,0,"Your lyre duel shatters his confidence and one of his sandals."]};
+  const [g,s,m]=R[key];glory+=g;sons=Math.max(0,sons+s);
+  $('glory').textContent=glory;$('sons').textContent=sons;
+  $('story').textContent=m;
+  $('choices').innerHTML='';
+  const btn=document.createElement('button');btn.innerHTML='<span class="k">&rarr;</span><span>Continue</span>';
+  btn.onclick=()=>show(i+1);$('choices').appendChild(btn);
+}
+function end(){
+  let verdict;
+  if(glory>=6&&sons===3)verdict="A perfect odyssey. Glory "+glory+", all sons standing. Odysseus would be insufferable about it.";
+  else if(sons===0)verdict="The sons of Ithica are gone. The hall is quiet. Glory: "+glory+". History remembers this differently than you will.";
+  else verdict="The hall is reclaimed. Glory "+glory+", "+sons+" son(s) standing. Penelope has questions.";
+  $('story').textContent=verdict;
+  const btn=document.createElement('button');btn.innerHTML='<span class="k">&rarr;</span><span>Sail again</span>';
+  btn.onclick=()=>{glory=0;sons=3;$('glory').textContent=0;$('sons').textContent=3;show(0);};
+  $('choices').appendChild(btn);
+}
+show(0);
+</script>
+</body>
+</html>
